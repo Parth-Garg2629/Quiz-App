@@ -1,39 +1,118 @@
 # Quiz App
 
-A lightweight team project built with PHP, MySQL, HTML, CSS, and browser JavaScript. It supports student accounts, allowlisted teacher accounts, quiz authoring, publishing, attempts, and score review.
+A web-based quiz platform built for the Web Development lab. Teachers create and publish multiple-choice quizzes, and students take them and review their scores.
+
+The stack is plain PHP, MySQL, HTML, CSS, and vanilla JavaScript, with no frameworks or build step.
+
+## Features
+
+**Students**
+- Register and log in
+- Browse published quizzes
+- Take a quiz and submit answers
+- Review past attempts and scores
+
+**Teachers**
+- Register using an allowlisted email address
+- Create and edit quizzes
+- Publish quizzes to make them available to students
+- View student attempts and scores
+
+## Tech Stack
+
+| Layer    | Technology                          |
+|----------|-------------------------------------|
+| Frontend | HTML, CSS, JavaScript (no frameworks) |
+| Backend  | PHP 8.1+ (PDO)                      |
+| Database | MySQL 8.0+ or compatible MariaDB    |
+| Server   | Apache (e.g. XAMPP) or PHP built-in server |
 
 ## Requirements
 
-- PHP 8.1+ with PDO MySQL enabled
-- MySQL 8.0+ (or a compatible MariaDB release)
-- A web server that runs PHP (Apache/XAMPP is suitable)
+- PHP 8.1 or later with the PDO MySQL extension enabled
+- MySQL 8.0 or later (or a compatible MariaDB release)
+- A web server that can run PHP
 - A modern browser
 
-## Setup
+## Installation
 
 1. Create a MySQL database, for example `quiz_app`.
-2. Import [`database/schema.sql`](database/schema.sql).
-3. Copy `config.example.php` to `config.php` and set database credentials. Set `teacher_emails` to a comma-separated list of teacher email addresses.
-4. Serve this directory through a PHP-enabled web server. For a local PHP installation, `php -S localhost:8000` from the project directory is sufficient for development.
-5. Open `http://localhost:8000/`.
 
-Teacher emails are matched case-insensitively. A teacher must register using an address in the allowlist. Do not publish real credentials or commit a real `config.php`.
+   ```sql
+   CREATE DATABASE quiz_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
 
-## Project map
+2. Import the schema.
 
-- [`docs/architecture.md`](docs/architecture.md) — system structure and responsibilities
-- [`docs/tech-stack.md`](docs/tech-stack.md) — stack choices and boundaries
-- [`docs/api-design.md`](docs/api-design.md) — API actions, roles, payloads, and response shape
-- [`docs/edge-cases.md`](docs/edge-cases.md) — expected failure and boundary behavior
-- [`docs/testing-phases.md`](docs/testing-phases.md) — manual testing phases and acceptance checklist
-- [`database/schema.sql`](database/schema.sql) — database tables and indexes
-- `api.php` — session-authenticated API
-- `index.html`, `styles.css`, `app.js` — browser interface
+   ```bash
+   mysql -u <user> -p quiz_app < database/schema.sql
+   ```
 
-## Security notes
+3. Create your local configuration file.
 
-Passwords are stored with PHP's `password_hash`; SQL uses prepared statements; API requests validate session role and CSRF tokens; output is escaped before insertion into the page. For a public deployment, serve only over HTTPS, set secure cookie options, move secrets outside the web root, add rate limiting and account recovery, and review hosting-specific PHP configuration.
+   ```bash
+   cp config.example.php config.php
+   ```
 
-## Scope
+   Open `config.php` and set the database credentials. Set `teacher_emails` to a comma-separated list of the email addresses that may register as teachers.
 
-This is a deliberately small course-project starter. It provides basic quiz authoring and multiple-choice attempts, not proctoring, timed exams, rich question types, email verification, or production-grade account recovery.
+4. Start a PHP-enabled server. For local development, the built-in server is enough:
+
+   ```bash
+   php -S localhost:8000
+   ```
+
+5. Open `http://localhost:8000/` in your browser.
+
+## Teacher Accounts
+
+Teacher access is controlled by an allowlist. A user can register as a teacher only if their email appears in `teacher_emails` in `config.php`. Matching is case-insensitive. Any other address registers as a student.
+
+`config.php` contains credentials and must never be committed. Make sure it is listed in `.gitignore`.
+
+## Project Structure
+
+```
+.
+├── api.php               Session-authenticated API
+├── index.html            Application page
+├── app.js                Client-side logic
+├── styles.css            Styles
+├── config.example.php    Configuration template
+├── database/
+│   └── schema.sql        Tables and indexes
+└── docs/
+    ├── architecture.md   System structure and responsibilities
+    ├── tech-stack.md     Technology choices and boundaries
+    ├── api-design.md     API actions, roles, payloads, response format
+    ├── edge-cases.md     Expected failure and boundary behavior
+    └── testing-phases.md Manual test phases and acceptance checklist
+```
+
+## Documentation
+
+Design and testing notes are in the `docs/` folder. Start with `architecture.md` for an overview, then `api-design.md` if you are working on the API or client.
+
+## Security
+
+- Passwords are hashed with PHP's `password_hash`.
+- All SQL uses prepared statements.
+- Each API request checks the session role and a CSRF token.
+- Output is escaped before it is inserted into the page.
+
+Before any public deployment, the following still need to be done:
+
+- Serve the site over HTTPS only and set secure cookie options.
+- Move `config.php` and other secrets outside the web root.
+- Add rate limiting and an account recovery flow.
+- Review the PHP configuration of the hosting environment.
+
+## Scope and Limitations
+
+This is a course project, so the scope is intentionally narrow. It supports basic quiz authoring and multiple-choice attempts. It does not include:
+
+- Proctoring or timed exams
+- Question types other than multiple choice
+- Email verification
+- Production-grade account recovery
+
